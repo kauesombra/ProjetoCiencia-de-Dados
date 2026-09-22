@@ -66,8 +66,38 @@ projeto-1/
 python -m venv .venv
 source .venv/bin/activate      # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
+
+# 1) Gera a base analítica integrada (lê dados/raw, grava dados/analytical)
+python src/processamento.py
+
+# 2) Abre os notebooks de exploração (opcional)
 jupyter lab notebooks/
+
+# 3) Roda o dashboard localmente
+streamlit run app/app.py
 ```
+
+## Dashboard
+
+O dashboard (`app/app.py`) lê exclusivamente `dados/analytical/base_municipios_tema1.csv`
+(gerado por `src/processamento.py`) e `dados/raw/dados_comuns/malha_municipal_ce_2022.geojson` —
+nenhuma chamada ao SIDRA em tempo de execução. Ele traz:
+
+- KPIs (PIB per capita, intensidade de ocupação formal, salário médio, participação industrial);
+- filtros por perfil setorial dominante, faixa de população e município;
+- mapa coroplético e ranking por indicador (comparação territorial);
+- dispersão estrutura setorial (2021) × emprego/remuneração (2022), com aviso de defasagem temporal;
+- três evidências visuais de cruzamento entre bases (PIB × Censo × CEMPRE; CEMPRE × estrutura setorial; PIB × Censo);
+- aba de fontes, metodologia e limitações.
+
+### Publicar no Streamlit Community Cloud
+
+1. Suba este repositório no GitHub (já incluindo `dados/analytical/base_municipios_tema1.csv`
+   gerado — o Streamlit Cloud não roda `processamento.py` sozinho, então gere o CSV localmente
+   e faça commit dele).
+2. Em https://share.streamlit.io, clique em "New app", selecione o repositório, a branch e o
+   caminho `app/app.py`.
+3. Deploy. A URL pública gerada não exige login — é essa URL que vai no PDF final e no README.
 
 ## Fontes
 

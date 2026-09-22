@@ -9,6 +9,7 @@ SIDRA em tempo de execução.
 import json
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import plotly.express as px
 import streamlit as st
@@ -219,8 +220,17 @@ with aba_missao:
     fig_disp = px.scatter(
         df_f, x=eixo_x, y=eixo_y, color="perfil_setorial_dominante",
         size="populacao_2022", size_max=40, hover_name="territorio_nome",
-        trendline="ols", trendline_scope="overall",
         labels={eixo_x: ROTULOS[eixo_x], eixo_y: ROTULOS[eixo_y], "perfil_setorial_dominante": "Perfil setorial"},
+    )
+    # Linha de tendência linear calculada manualmente (evita dependência do
+    # statsmodels, que pode não ter build disponível para todas as versões de Python).
+    x_vals = df_f[eixo_x].to_numpy()
+    y_vals = df_f[eixo_y].to_numpy()
+    coef = np.polyfit(x_vals, y_vals, 1)
+    x_linha = np.linspace(x_vals.min(), x_vals.max(), 100)
+    fig_disp.add_scatter(
+        x=x_linha, y=np.polyval(coef, x_linha), mode="lines",
+        line=dict(color="black", dash="dash"), name="Tendência linear",
     )
     fig_disp.update_layout(height=520, margin=dict(l=0, r=0, t=10, b=0))
     st.plotly_chart(fig_disp, width='stretch')
